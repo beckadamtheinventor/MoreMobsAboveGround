@@ -1,7 +1,7 @@
-package com.beckadam.morenightmobs.config;
+package com.beckadam.moremobsaboveground.config;
 
 
-import com.beckadam.morenightmobs.MoreNightMobs;
+import com.beckadam.moremobsaboveground.MoreMobsAboveGround;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraftforge.common.ForgeConfigSpec;
@@ -15,9 +15,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Mod.EventBusSubscriber(modid = MoreNightMobs.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@Mod.EventBusSubscriber(modid = MoreMobsAboveGround.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class Config {
     private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
+
+    private static final ForgeConfigSpec.ConfigValue<Boolean> ENABLE_DEBUG_LOGGING =
+            BUILDER.comment("Enable debug logging")
+                    .define("enable_debug_logging", false);
 
     private static final ForgeConfigSpec.ConfigValue<List<String>> MOBS_TO_REGULATE =
             BUILDER.comment("Mobs that should be affected by spawn restrictions")
@@ -39,19 +43,22 @@ public class Config {
             BUILDER.comment("Whether or not to allow spawning listed mobs underground if the player is above ground.")
                     .define("spawn_underground_when_above_ground", false);
 
-    public static Set<EntityType<?>> mobsToRegulate;
-    public static List<String> mobTagsToRegulate;
+    public static boolean enableDebugLogging;
+    public static final Set<EntityType<?>> mobsToRegulate = new HashSet<>();
+    public static final List<String> mobTagsToRegulate = new ArrayList<>();
     public static double maxDistance;
     public static double maxDistanceY;
     public static boolean spawnUndergroundWhenAboveGround;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
-        mobsToRegulate = new HashSet<>();
+        enableDebugLogging = ENABLE_DEBUG_LOGGING.get();
+        mobsToRegulate.clear();
         for (String mob : MOBS_TO_REGULATE.get()) {
             mobsToRegulate.add(ForgeRegistries.ENTITY_TYPES.getValue(ResourceLocation.parse(mob)));
         }
-        mobTagsToRegulate = MOB_TAGS_TO_REGULATE.get();
+        mobTagsToRegulate.clear();
+        mobTagsToRegulate.addAll(MOB_TAGS_TO_REGULATE.get());
         maxDistance = MAX_DISTANCE.get();
         maxDistanceY = MAX_DISTANCE_Y.get();
         spawnUndergroundWhenAboveGround = SPAWN_UNDERGROUND_WHEN_ABOVE_GROUND.get();

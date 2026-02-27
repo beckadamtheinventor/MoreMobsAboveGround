@@ -1,9 +1,8 @@
-package com.beckadam.morenightmobs.handlers;
+package com.beckadam.moremobsaboveground.handlers;
 
-import com.beckadam.morenightmobs.MoreNightMobs;
-import com.beckadam.morenightmobs.config.Config;
-import com.beckadam.morenightmobs.util.MatchEntity;
-import net.minecraft.client.Minecraft;
+import com.beckadam.moremobsaboveground.MoreMobsAboveGround;
+import com.beckadam.moremobsaboveground.config.Config;
+import com.beckadam.moremobsaboveground.util.MatchEntity;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
@@ -15,7 +14,7 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.Set;
 
-@Mod.EventBusSubscriber(modid = MoreNightMobs.MODID)
+@Mod.EventBusSubscriber(modid = MoreMobsAboveGround.MODID)
 public class LivingSpawnEventHandler {
     @SubscribeEvent
     public static void LivingSpawnEvent(LivingSpawnEvent.CheckSpawn event) {
@@ -44,7 +43,10 @@ public class LivingSpawnEventHandler {
                 }
             }
             if (!shouldSpawn) {
+                if (Config.enableDebugLogging) MoreMobsAboveGround.LOGGER.debug("Denying mob spawn at %f,%f,%f".formatted(entity.getX(), entity.getY(), entity.getZ()));
                 event.setResult(Event.Result.DENY);
+            } else {
+                if (Config.enableDebugLogging) MoreMobsAboveGround.LOGGER.debug("Allowing mob spawn at %f,%f,%f".formatted(entity.getX(), entity.getY(), entity.getZ()));
             }
         }
     }

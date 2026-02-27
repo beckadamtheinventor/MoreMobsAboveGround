@@ -1,4 +1,4 @@
-package com.beckadam.morenightmobs.util;
+package com.beckadam.moremobsaboveground.util;
 
 import net.minecraft.world.entity.EntityType;
 
