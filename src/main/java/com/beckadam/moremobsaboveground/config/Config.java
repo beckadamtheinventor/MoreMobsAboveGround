@@ -10,10 +10,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Mod.EventBusSubscriber(modid = MoreMobsAboveGround.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class Config {
@@ -25,7 +22,18 @@ public class Config {
 
     private static final ForgeConfigSpec.ConfigValue<List<String>> MOBS_TO_REGULATE =
             BUILDER.comment("Mobs that should be affected by spawn restrictions")
-                    .define("mobs_to_regulate", new ArrayList<>());
+                    .define("mobs_to_regulate", new ArrayList<>() {
+                        {
+                            add("entity.minecraft.zombie");
+                            add("entity.minecraft.skeleton");
+                            add("entity.minecraft.creeper");
+                            add("entity.minecraft.enderman");
+                            add("entity.minecraft.spider");
+                            add("entity.minecraft.cave_spider");
+                            add("entity.minecraft.zombie_horse");
+                            add("entity.minecraft.skeleton_horse");
+                            add("entity.minecraft.zombie_horse");
+                        }});
 
     private static final ForgeConfigSpec.ConfigValue<List<String>> MOB_TAGS_TO_REGULATE =
             BUILDER.comment("Mob tags that should be affected by spawn restrictions")
@@ -43,8 +51,10 @@ public class Config {
             BUILDER.comment("Whether or not to allow spawning listed mobs underground if the player is above ground.")
                     .define("spawn_underground_when_above_ground", false);
 
+    public static final ForgeConfigSpec SPEC = BUILDER.build();
+
     public static boolean enableDebugLogging;
-    public static final Set<EntityType<?>> mobsToRegulate = new HashSet<>();
+    public static final Set<String> mobsToRegulate = new HashSet<>();
     public static final List<String> mobTagsToRegulate = new ArrayList<>();
     public static double maxDistance;
     public static double maxDistanceY;
@@ -54,9 +64,7 @@ public class Config {
     static void onLoad(final ModConfigEvent event) {
         enableDebugLogging = ENABLE_DEBUG_LOGGING.get();
         mobsToRegulate.clear();
-        for (String mob : MOBS_TO_REGULATE.get()) {
-            mobsToRegulate.add(ForgeRegistries.ENTITY_TYPES.getValue(ResourceLocation.parse(mob)));
-        }
+        mobsToRegulate.addAll(MOBS_TO_REGULATE.get());
         mobTagsToRegulate.clear();
         mobTagsToRegulate.addAll(MOB_TAGS_TO_REGULATE.get());
         maxDistance = MAX_DISTANCE.get();

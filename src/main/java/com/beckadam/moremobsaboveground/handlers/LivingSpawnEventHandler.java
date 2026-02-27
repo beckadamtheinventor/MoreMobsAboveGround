@@ -2,8 +2,7 @@ package com.beckadam.moremobsaboveground.handlers;
 
 import com.beckadam.moremobsaboveground.MoreMobsAboveGround;
 import com.beckadam.moremobsaboveground.config.Config;
-import com.beckadam.moremobsaboveground.util.MatchEntity;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.LevelAccessor;
@@ -12,20 +11,19 @@ import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import java.util.Set;
 
 @Mod.EventBusSubscriber(modid = MoreMobsAboveGround.MODID)
 public class LivingSpawnEventHandler {
     @SubscribeEvent
     public static void LivingSpawnEvent(LivingSpawnEvent.CheckSpawn event) {
-        if (event.getSpawnReason() == MobSpawnType.NATURAL) {
-            Entity entity = event.getEntity();
-            if (!MatchEntity.Type(entity.getType(), Config.mobsToRegulate)) {
-                Set<String> tags = entity.getTags();
-                if (!MatchEntity.Tags(tags, Config.mobTagsToRegulate)) {
-                    return;
-                }
+        if (event.getSpawnReason() == MobSpawnType.NATURAL && event.getEntity() != null) {
+            LivingEntity entity = event.getEntity();
+            String type = entity.getType().toString();
+            if (!Config.mobsToRegulate.contains(type)) {
+                if (Config.enableDebugLogging) MoreMobsAboveGround.LOGGER.info("Ignoring mob spawn of type %s".formatted(type));
+                return;
             }
+
             boolean shouldSpawn = true;
             LevelAccessor level = event.getLevel();
             for (Player player : event.getLevel().players()) {
@@ -43,10 +41,12 @@ public class LivingSpawnEventHandler {
                 }
             }
             if (!shouldSpawn) {
-                if (Config.enableDebugLogging) MoreMobsAboveGround.LOGGER.debug("Denying mob spawn at %f,%f,%f".formatted(entity.getX(), entity.getY(), entity.getZ()));
+                if (Config.enableDebugLogging)
+                    MoreMobsAboveGround.LOGGER.info("Denying mob spawn of type %s at %f,%f,%f".formatted(type, entity.getX(), entity.getY(), entity.getZ()));
                 event.setResult(Event.Result.DENY);
             } else {
-                if (Config.enableDebugLogging) MoreMobsAboveGround.LOGGER.debug("Allowing mob spawn at %f,%f,%f".formatted(entity.getX(), entity.getY(), entity.getZ()));
+                if (Config.enableDebugLogging)
+                    MoreMobsAboveGround.LOGGER.info("Allowing mob spawn of type %s at %f,%f,%f".formatted(type, entity.getX(), entity.getY(), entity.getZ()));
             }
         }
     }
