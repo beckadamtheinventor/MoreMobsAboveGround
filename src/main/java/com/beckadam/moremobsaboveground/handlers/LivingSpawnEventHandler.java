@@ -2,10 +2,12 @@ package com.beckadam.moremobsaboveground.handlers;
 
 import com.beckadam.moremobsaboveground.MoreMobsAboveGround;
 import com.beckadam.moremobsaboveground.config.Config;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -41,9 +43,16 @@ public class LivingSpawnEventHandler {
                 }
             }
             if (!shouldSpawn) {
-                if (Config.enableDebugLogging)
-                    MoreMobsAboveGround.LOGGER.info("Denying mob spawn of type %s at %f,%f,%f".formatted(type, entity.getX(), entity.getY(), entity.getZ()));
-                event.setResult(Event.Result.DENY);
+                if (Config.moveMobsToSurface) {
+                    int y = level.getHeight(Heightmap.Types.WORLD_SURFACE, (int)entity.getX(), (int)entity.getZ());
+                    entity.setPos(entity.getX(), y, entity.getZ());
+                    if (Config.enableDebugLogging)
+                        MoreMobsAboveGround.LOGGER.info("Moved mob spawn of type %s to %f,%f,%f".formatted(type, entity.getX(), entity.getY(), entity.getZ()));
+                } else {
+                    if (Config.enableDebugLogging)
+                        MoreMobsAboveGround.LOGGER.info("Denying mob spawn of type %s at %f,%f,%f".formatted(type, entity.getX(), entity.getY(), entity.getZ()));
+                    event.setResult(Event.Result.DENY);
+                }
             } else {
                 if (Config.enableDebugLogging)
                     MoreMobsAboveGround.LOGGER.info("Allowing mob spawn of type %s at %f,%f,%f".formatted(type, entity.getX(), entity.getY(), entity.getZ()));

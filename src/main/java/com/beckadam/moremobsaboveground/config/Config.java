@@ -51,6 +51,10 @@ public class Config {
             BUILDER.comment("Whether or not to allow spawning listed mobs underground if the player is above ground.")
                     .define("spawn_underground_when_above_ground", false);
 
+    private static final ForgeConfigSpec.ConfigValue<Boolean> MOVE_MOBS_TO_SURFACE =
+            BUILDER.comment("Whether or not to try to move mobs to the surface instead of denying them spawning.")
+                    .define("move_mobs_to_surface", true);
+
     public static final ForgeConfigSpec SPEC = BUILDER.build();
 
     public static boolean enableDebugLogging;
@@ -59,6 +63,7 @@ public class Config {
     public static double maxDistance;
     public static double maxDistanceY;
     public static boolean spawnUndergroundWhenAboveGround;
+    public static boolean moveMobsToSurface;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
@@ -70,5 +75,6 @@ public class Config {
         maxDistance = MAX_DISTANCE.get();
         maxDistanceY = MAX_DISTANCE_Y.get();
         spawnUndergroundWhenAboveGround = SPAWN_UNDERGROUND_WHEN_ABOVE_GROUND.get();
+        moveMobsToSurface = MOVE_MOBS_TO_SURFACE.get();
     }
 }
