@@ -55,6 +55,18 @@ public class Config {
             BUILDER.comment("Whether or not to try to move mobs to the surface instead of denying them spawning.")
                     .define("move_mobs_to_surface", true);
 
+    private static final ForgeConfigSpec.ConfigValue<Boolean> DENY_MOBS_THAT_CANT_MOVE_TO_SURFACE =
+            BUILDER.comment("Whether to deny spawns when moving to surface fails due to spawn conditions")
+                    .define("deny_mobs_that_cant_move_to_surface", false);
+
+    private static final ForgeConfigSpec.ConfigValue<Boolean> IGNORE_BLOCK_SPAWN_CONDITION =
+            BUILDER.comment("Set this to true to ignore the spawn-ability of the block the entity would be moved to (e.g. bottom slabs)")
+                    .define("ignore_block_spawn_condition", false);
+
+    private static final ForgeConfigSpec.ConfigValue<Boolean> IGNORE_LIGHT_LEVEL_SPAWN_CONDITION =
+            BUILDER.comment("Set this to true to ignore the light level of the block the entity would be moved to")
+                    .define("ignore_light_level_spawn_condition", false);
+
     public static final ForgeConfigSpec SPEC = BUILDER.build();
 
     public static boolean enableDebugLogging;
@@ -64,6 +76,9 @@ public class Config {
     public static double maxDistanceY;
     public static boolean spawnUndergroundWhenAboveGround;
     public static boolean moveMobsToSurface;
+    public static boolean denyMobsThatCantMoveToSurface;
+    public static boolean ignoreBlockSpawnCondition;
+    public static boolean ignoreLightLevelSpawnCondition;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
@@ -76,5 +91,8 @@ public class Config {
         maxDistanceY = MAX_DISTANCE_Y.get();
         spawnUndergroundWhenAboveGround = SPAWN_UNDERGROUND_WHEN_ABOVE_GROUND.get();
         moveMobsToSurface = MOVE_MOBS_TO_SURFACE.get();
+        denyMobsThatCantMoveToSurface = DENY_MOBS_THAT_CANT_MOVE_TO_SURFACE.get();
+        ignoreBlockSpawnCondition = IGNORE_BLOCK_SPAWN_CONDITION.get();
+        ignoreLightLevelSpawnCondition = IGNORE_LIGHT_LEVEL_SPAWN_CONDITION.get();
     }
 }

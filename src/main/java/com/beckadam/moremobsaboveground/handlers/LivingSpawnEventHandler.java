@@ -7,6 +7,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.eventbus.api.Event;
@@ -45,17 +46,42 @@ public class LivingSpawnEventHandler {
             if (!shouldSpawn) {
                 if (Config.moveMobsToSurface) {
                     int y = level.getHeight(Heightmap.Types.WORLD_SURFACE, (int)entity.getX(), (int)entity.getZ());
-                    entity.setPos(entity.getX(), y, entity.getZ());
-                    if (Config.enableDebugLogging)
-                        MoreMobsAboveGround.LOGGER.info("Moved mob spawn of type %s to %f,%f,%f".formatted(type, entity.getX(), entity.getY(), entity.getZ()));
+                    BlockPos pos = new BlockPos(entity.getX(), y, entity.getZ());
+                    int light = level.getLightEmission(pos);
+                    BlockState block = level.getBlockState(pos);
+                    if (!Config.ignoreBlockSpawnCondition && !block.isValidSpawn(level, pos, entity.getType())) {
+                        if (Config.denyMobsThatCantMoveToSurface) {
+                            if (Config.enableDebugLogging)
+                                MoreMobsAboveGround.LOGGER.info("Denying mob spawn of type %s due to non-spawnable block at move destination %.0f,%.0f,%.0f".formatted(type, entity.getX(), entity.getY(), entity.getZ()));
+                            event.setResult(Event.Result.DENY);
+                        } else {
+                            if (Config.enableDebugLogging)
+                                MoreMobsAboveGround.LOGGER.info("Not moving mob spawn of type %s due to none-spawnable block at move destination %.0f,%.0f,%.0f".formatted(type, entity.getX(), entity.getY(), entity.getZ()));
+                            event.setResult(Event.Result.DENY);
+                        }
+                    } else if (!Config.ignoreLightLevelSpawnCondition && light > level.dimensionType().monsterSpawnBlockLightLimit()) {
+                        if (Config.denyMobsThatCantMoveToSurface) {
+                            if (Config.enableDebugLogging)
+                                MoreMobsAboveGround.LOGGER.info("Denying mob spawn of type %s due to surface light level at destination %.0f,%.0f,%.0f".formatted(type, entity.getX(), entity.getY(), entity.getZ()));
+                            event.setResult(Event.Result.DENY);
+                        } else {
+                            if (Config.enableDebugLogging)
+                                MoreMobsAboveGround.LOGGER.info("Not moving mob spawn of type %s due to surface light level at destination %.0f,%.0f,%.0f".formatted(type, entity.getX(), entity.getY(), entity.getZ()));
+                            event.setResult(Event.Result.DENY);
+                        }
+                    } else {
+                        entity.setPos(entity.getX(), y, entity.getZ());
+                        if (Config.enableDebugLogging)
+                            MoreMobsAboveGround.LOGGER.info("Moved mob spawn of type %s to %.0f,%.0f,%.0f".formatted(type, entity.getX(), entity.getY(), entity.getZ()));
+                    }
                 } else {
                     if (Config.enableDebugLogging)
-                        MoreMobsAboveGround.LOGGER.info("Denying mob spawn of type %s at %f,%f,%f".formatted(type, entity.getX(), entity.getY(), entity.getZ()));
+                        MoreMobsAboveGround.LOGGER.info("Denying mob spawn of type %s at %.0f,%.0f,%.0f".formatted(type, entity.getX(), entity.getY(), entity.getZ()));
                     event.setResult(Event.Result.DENY);
                 }
             } else {
                 if (Config.enableDebugLogging)
-                    MoreMobsAboveGround.LOGGER.info("Allowing mob spawn of type %s at %f,%f,%f".formatted(type, entity.getX(), entity.getY(), entity.getZ()));
+                    MoreMobsAboveGround.LOGGER.info("Allowing mob spawn of type %s at %.0f,%.0f,%.0f".formatted(type, entity.getX(), entity.getY(), entity.getZ()));
             }
         }
     }
