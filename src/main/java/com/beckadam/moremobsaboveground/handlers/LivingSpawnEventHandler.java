@@ -45,9 +45,9 @@ public class LivingSpawnEventHandler {
             }
             if (!shouldSpawn) {
                 if (Config.moveMobsToSurface) {
-                    int y = level.getHeight(Heightmap.Types.WORLD_SURFACE, (int)entity.getX(), (int)entity.getZ());
+                    int y = level.getHeight(Heightmap.Types.WORLD_SURFACE, (int)entity.getX(), (int)entity.getZ())+1;
                     BlockPos pos = new BlockPos(entity.getX(), y, entity.getZ());
-                    int light = level.getLightEngine().getRawBrightness(pos, 0);
+                    int light = level.getMaxLocalRawBrightness(pos);
                     BlockState block = level.getBlockState(pos);
                     if (!Config.ignoreBlockSpawnCondition && !block.isValidSpawn(level, pos, entity.getType())) {
                         if (Config.denyMobsThatCantMoveToSurface) {
@@ -56,7 +56,7 @@ public class LivingSpawnEventHandler {
                             event.setResult(Event.Result.DENY);
                         } else {
                             if (Config.enableDebugLogging)
-                                MoreMobsAboveGround.LOGGER.info("Not moving mob spawn of type %s due to none-spawnable block at move destination %.0f,%.0f,%.0f".formatted(type, entity.getX(), entity.getY(), entity.getZ()));
+                                MoreMobsAboveGround.LOGGER.info("Not moving mob spawn of type %s due to non-spawnable block at move destination %.0f,%.0f,%.0f".formatted(type, entity.getX(), entity.getY(), entity.getZ()));
                             event.setResult(Event.Result.DENY);
                         }
                     } else if (!Config.ignoreLightLevelSpawnCondition && light > level.dimensionType().monsterSpawnBlockLightLimit()) {
@@ -70,7 +70,7 @@ public class LivingSpawnEventHandler {
                             event.setResult(Event.Result.DENY);
                         }
                     } else {
-                        entity.setPos(entity.getX(), y+1, entity.getZ());
+                        entity.setPos(entity.getX(), y, entity.getZ());
                         if (Config.enableDebugLogging)
                             MoreMobsAboveGround.LOGGER.info("Moved mob spawn of type %s to %.0f,%.0f,%.0f".formatted(type, entity.getX(), entity.getY(), entity.getZ()));
                     }
