@@ -45,7 +45,7 @@ public class LivingSpawnEventHandler {
             }
             if (!shouldSpawn) {
                 if (Config.moveMobsToSurface) {
-                    int y = level.getHeight(Heightmap.Types.WORLD_SURFACE, (int)entity.getX(), (int)entity.getZ())+1;
+                    int y = level.getHeight(Heightmap.Types.WORLD_SURFACE, (int)entity.getX(), (int)entity.getZ());
                     BlockPos pos = new BlockPos(entity.getX(), y, entity.getZ());
                     int light = level.getMaxLocalRawBrightness(pos);
                     BlockState block = level.getBlockState(pos);
@@ -70,7 +70,7 @@ public class LivingSpawnEventHandler {
                             event.setResult(Event.Result.DENY);
                         }
                     } else {
-                        entity.setPos(entity.getX(), y, entity.getZ());
+                        entity.setPos(entity.getX(), y+1, entity.getZ());
                         if (Config.enableDebugLogging)
                             MoreMobsAboveGround.LOGGER.info("Moved mob spawn of type %s to %.0f,%.0f,%.0f".formatted(type, entity.getX(), entity.getY(), entity.getZ()));
                     }
